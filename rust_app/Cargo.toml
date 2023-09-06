@@ -6,12 +6,17 @@ edition = "2021"
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
-aws-config = "0.55.1"
-aws-sdk-dynamodb = "0.26.0"
+aws-config = "0.56.1"
+aws-sdk-dynamodb = "0.30.0"
+aws-sdk-s3 = "0.30.0"
 aws-smithy-client = { version = "0.55.1", features = ["test-util"] }
 lambda_http = "0.8.0"
+lambda_sqs = "0.2.3"
+lambda_runtime = "0.7.2"
 tokio = { version = "1.21.1", features = ["full"] }
-
+serde = "1.0.152"
+serde_json = "1.0.91"
+aws_lambda_events = "0.7.2"
 async-trait = "0.1.51"
 
 mockall = "0.11.3"
@@ -39,3 +44,7 @@ path = "src/put_handler.rs"
 [[bin]]
 name = "get"
 path = "src/get_handler.rs"
+
+[[bin]]
+name = "put_s3"
+path = "src/put_s3_handler.rs"

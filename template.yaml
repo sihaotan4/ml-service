@@ -15,6 +15,10 @@ Resources:
       PrimaryKey:
         Name: id
         Type: String
+  OutputBucket:
+    Type: AWS::S3::Bucket
+  InputBucket:
+    Type: AWS::S3::Bucket
 
   PutFunction:
     Type: AWS::Serverless::Function # More info about Function Resource: https://github.com/awslabs/serverless-application-model/blob/master/versions/2016-10-31.md#awsserverlessfunction
@@ -62,6 +66,43 @@ Resources:
         - DynamoDBReadPolicy: # More info about SAM policy templates: https://docs.aws.amazon.com/serverless-application-model/latest/developerguide/serverless-policy-templates.html
             TableName: !Ref Table
 
+  PutS3:
+    Type: AWS::Serverless::Function # More info about Function Resource: https://github.com/awslabs/serverless-application-model/blob/master/versions/2016-10-31.md#awsserverlessfunction
+    Metadata:
+      BuildMethod: rust-cargolambda
+    Properties:
+      CodeUri: ./rust_app/target/lambda/put_s3/bootstrap
+      Handler: bootstrap.is.the.handler
+      Runtime: provided.al2
+      Architectures:
+        - arm64
+      Events:
+        HelloWorld:
+          Type: Api # More info about API Event Source: https://github.com/awslabs/serverless-application-model/blob/master/versions/2016-10-31.md#api
+          Properties:
+            Path: /put-s3/{id}
+            Method: put
+      Environment:
+        Variables:
+          BUCKET_NAME: !Ref OutputBucket
+      Policies:
+        - S3WritePolicy:
+            BucketName: !Ref OutputBucket
+      
+      # Events:
+      #   S3Event:
+      #     Type: S3
+      #     Properties:
+      #       Bucket: !Ref InputBucket
+      #       Events: s3:ObjectCreated:*
+      # Policies:
+      #   - Version: '2012-10-17'
+      #     Statement:
+      #       - Effect: Allow
+      #         Action:
+      #           - 's3:GetObject'
+      #         Resource: 'arn:aws:s3:::*'
+
 Outputs:
   # ServerlessRestApi is an implicit API created out of Events key under Serverless::Function
   # Find out more about other implicit resources you can reference within SAM
@@ -75,3 +116,10 @@ Outputs:
   PutTable:
     Description: "DynamoDB table name"
     Value: !GetAtt Table.Arn
+  OutputBucket:
+    Description: "S3 output bucket"
+    Value: !GetAtt OutputBucket.Arn
+  InputBucket:
+    Description: "S3 input bucket"
+    Value: !GetAtt InputBucket.Arn
+  
